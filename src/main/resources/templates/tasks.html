@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Todo List</title>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Todo List</h2>
+
+    <!-- ADD TODO -->
+    <form th:action="@{/}" method="post" class="d-flex mb-4">
+        <input type="text" name="title" class="form-control me-2" placeholder="Enter task" required>
+        <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+
+    <!-- TABLE -->
+    <table class="table table-bordered">
+        <thead class="table-dark">
+        <tr>
+            <th>Title</th>
+            <th style="width: 250px;">Action</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="t : ${tasks}">
+
+            <!-- TITLE -->
+            <td>
+                <!-- normal text -->
+                <span th:id="'text-' + ${t.id}" th:text="${t.title}"></span>
+
+                <!-- editable input -->
+                <input type="text"
+                       th:id="'input-' + ${t.id}"
+                       th:value="${t.title}"
+                       class="form-control d-none"/>
+            </td>
+
+            <!-- ACTIONS -->
+            <td>
+
+                <!-- EDIT -->
+                <button type="button"
+                        class="btn btn-warning btn-sm"
+                        th:id="'edit-btn-' + ${t.id}"
+                        th:attr="onclick=|edit(${t.id})|">
+                    Edit
+                </button>
+
+                <!-- SAVE (PUT) -->
+                <form th:action="@{/update}" method="post" style="display:inline;">
+
+                    <!-- Enable PUT -->
+                    <input type="hidden" name="_method" value="put"/>
+
+                    <!-- Required data -->
+                    <input type="hidden" name="id" th:value="${t.id}"/>
+                    <input type="hidden" name="title" th:id="'hidden-' + ${t.id}"/>
+
+                    <button type="submit"
+                            class="btn btn-success btn-sm d-none"
+                            th:id="'save-btn-' + ${t.id}"
+                            th:attr="onclick=|save(${t.id})|">
+                        Save
+                    </button>
+                </form>
+
+                <!-- DELETE -->
+                <form th:action="@{'/' + ${t.id}}" method="post" style="display:inline;">
+                    <input type="hidden" name="_method" value="delete"/>
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        Delete
+                    </button>
+                </form>
+
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- JS -->
+<script>
+    function edit(id) {
+        document.getElementById("text-" + id).classList.add("d-none");
+        document.getElementById("input-" + id).classList.remove("d-none");
+
+        document.getElementById("edit-btn-" + id).classList.add("d-none");
+        document.getElementById("save-btn-" + id).classList.remove("d-none");
+    }
+
+    function save(id) {
+        let value = document.getElementById("input-" + id).value;
+        document.getElementById("hidden-" + id).value = value;
+        return true;
+    }
+</script>
+
+</body>
+</html>
